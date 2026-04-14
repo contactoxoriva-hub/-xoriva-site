@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XORIVA — Streaming Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700;1,9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:    #03040d;
+  --deep:     #070b1a;
+  --surface:  rgba(255,255,255,0.035);
+  --surface2: rgba(255,255,255,0.065);
+  --border:   rgba(255,255,255,0.075);
+  --violet:        #7c3aed;
+  --violet-light:  #a78bfa;
+  --cyan:     #06b6d4;
+  --gold:     #f59e0b;
+  --gold-lt:  #fcd34d;
+  --green:    #10b981;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --wa:       #25D366;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── BACKGROUND ─────────────────────────── */
+.bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);animation:drift 20s ease-in-out infinite alternate}
+.o1{width:700px;height:700px;background:radial-gradient(circle,rgba(124,58,237,.2),transparent 65%);top:-200px;left:-150px;animation-duration:18s}
+.o2{width:600px;height:600px;background:radial-gradient(circle,rgba(6,182,212,.13),transparent 65%);top:30%;right:-200px;animation-duration:22s;animation-direction:alternate-reverse}
+.o3{width:500px;height:500px;background:radial-gradient(circle,rgba(245,158,11,.09),transparent 65%);bottom:-100px;left:30%;animation-duration:25s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.05)}100%{transform:translate(-20px,30px) scale(.97)}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black 40%,transparent 100%)}
+
+/* ── NAV ─────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(3,4,13,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:900;font-style:italic;background:linear-gradient(135deg,#fff 0%,var(--violet-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{display:flex!important;align-items:center;gap:8px;background:var(--wa)!important;color:#fff!important;font-weight:700!important;font-size:13px!important;padding:9px 18px;border-radius:8px;text-decoration:none;transition:all .25s}
+.nav-cta:hover{opacity:.88;transform:translateY(-2px)}
+/* Mobile menu */
+.nav-toggle{display:none;flex-direction:column;justify-content:center;align-items:center;width:48px;height:48px;background:transparent;border:none;cursor:pointer;gap:5px;padding:10px;border-radius:10px;transition:background .2s}
+.nav-toggle:hover{background:var(--surface)}
+.nav-toggle span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.nav-toggle.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.nav-toggle.active span:nth-child(2){opacity:0}
+.nav-toggle.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.nav-mobile{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:rgba(3,4,13,.98);backdrop-filter:blur(20px);padding:20px;flex-direction:column;gap:8px;overflow-y:auto;z-index:99}
+.nav-mobile.active{display:flex}
+.nav-mobile a{font-size:16px;font-weight:500;color:var(--muted2);text-decoration:none;padding:16px 20px;border-radius:12px;transition:all .2s;display:flex;align-items:center;gap:12px}
+.nav-mobile a:hover,.nav-mobile a:active{background:var(--surface2);color:#fff}
+.nav-mobile .nav-cta-mobile{background:var(--wa)!important;color:#fff!important;font-weight:700!important;justify-content:center;margin-top:12px;padding:18px!important;font-size:17px!important}
+@media(max-width:768px){nav{padding:0 16px;height:60px}.nav-links{display:none}.nav-toggle{display:flex}}
+
+/* ── HERO ─────────────────────────────────── */
+.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px}
+.hero-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);border-radius:999px;padding:7px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--violet-light);margin-bottom:28px;animation:fadeUp .8s cubic-bezier(.16,1,.3,1) both}
+.chip-dot{width:7px;height:7px;background:var(--violet-light);border-radius:50%;animation:pdot 2s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(52px,12vw,160px);font-weight:900;line-height:.9;letter-spacing:-2px;color:#fff;animation:fadeUp .8s .08s cubic-bezier(.16,1,.3,1) both}
+.hero-title .grad{display:block;font-style:italic;background:linear-gradient(135deg,var(--violet-light) 0%,var(--cyan) 50%,var(--gold-lt) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:fadeUp .8s .08s cubic-bezier(.16,1,.3,1) both,gs 5s ease-in-out infinite alternate}
+@keyframes gs{0%{background-position:0%}100%{background-position:100%}}
+.hero-sub{margin-top:20px;font-size:clamp(14px,2.5vw,18px);color:var(--muted2);max-width:480px;line-height:1.6;animation:fadeUp .8s .16s cubic-bezier(.16,1,.3,1) both;padding:0 16px}
+.hero-actions{margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .24s cubic-bezier(.16,1,.3,1) both;padding:0 16px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LOGO STRIP ───────────────────────────── */
+.logo-strip{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px;padding:0 16px 60px;animation:fadeUp .8s .38s cubic-bezier(.16,1,.3,1) both}
+.strip-label{width:100%;text-align:center;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.strip-logo{display:flex;align-items:center;justify-content:center;opacity:.32;transition:opacity .25s,transform .25s;cursor:default;min-width:36px}
+.strip-logo:hover{opacity:.75;transform:scale(1.08)}
+.strip-logo svg{display:block}
+
+/* ── TRUST ────────────────────────────────── */
+.trust-row{position:relative;z-index:10;max-width:960px;margin:0 auto;padding:0 16px 80px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;animation:fadeUp .8s .3s cubic-bezier(.16,1,.3,1) both}
+.trust-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 16px;text-align:center;transition:all .25s}
+.trust-card:hover{background:var(--surface2);border-color:rgba(255,255,255,.14);transform:translateY(-3px)}
+.trust-icon{font-size:22px;margin-bottom:8px}
+.trust-lbl{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+.trust-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ── BUTTONS ──────────────────────────────── */
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--violet),#5b21b6);color:#fff;font-weight:700;font-size:15px;padding:16px 28px;border-radius:12px;text-decoration:none;box-shadow:0 8px 32px rgba(124,58,237,.35);transition:all .25s;min-height:52px;text-align:center}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(124,58,237,.45)}
+.btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:var(--muted2);font-weight:600;font-size:15px;padding:14px 24px;border-radius:12px;text-decoration:none;border:1px solid var(--border);transition:all .25s;min-height:52px;text-align:center}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:#fff;background:var(--surface2)}
+.btn-wa{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:var(--wa);color:#fff;font-weight:800;font-size:16px;padding:18px 32px;border-radius:14px;text-decoration:none;box-shadow:0 8px 32px rgba(37,211,102,.3);transition:all .25s;min-height:56px;text-align:center}
+.btn-wa:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(37,211,102,.4)}
+.btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:var(--muted2);font-weight:600;font-size:15px;padding:16px 28px;border-radius:14px;text-decoration:none;border:1px solid var(--border);transition:all .25s;min-height:56px;text-align:center}
+.btn-outline:hover{border-color:rgba(255,255,255,.18);color:#fff;background:var(--surface2)}
+
+/* ── SECTION ──────────────────────────────── */
+.section{position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:0 24px 120px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--violet-light);margin-bottom:18px}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--violet-light)}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(36px,5vw,58px);font-weight:900;line-height:1.05;letter-spacing:-1.5px;color:#fff;margin-bottom:12px}
+.section-title em{font-style:italic;background:linear-gradient(135deg,var(--violet-light),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-desc{font-size:15px;color:var(--muted2);max-width:480px;line-height:1.7;margin-bottom:52px}
+
+/* ── FEATURED COMBO ───────────────────────── */
+.featured{position:relative;background:linear-gradient(135deg,rgba(124,58,237,.14) 0%,rgba(6,182,212,.07) 50%,rgba(245,158,11,.05) 100%);border:1px solid rgba(124,58,237,.3);border-radius:24px;padding:28px 20px;overflow:hidden;margin-bottom:20px;transition:border-color .3s,transform .3s}
+.featured:hover{border-color:rgba(124,58,237,.55);transform:translateY(-4px)}
+.featured::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--violet) 20%,var(--cyan) 50%,var(--gold) 80%,transparent 100%);background-size:200%;animation:shimmer 3s linear infinite}
+@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
+.feat-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:28px}
+.feat-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;border-radius:6px;margin-bottom:12px}
+.feat-name{font-family:'Fraunces',serif;font-size:clamp(28px,6vw,54px);font-weight:900;line-height:1;letter-spacing:-1px;color:#fff;margin-bottom:10px}
+.feat-desc{font-size:14px;color:var(--muted2);max-width:100%;line-height:1.6}
+.feat-price-box{text-align:right;flex-shrink:0}
+.price-from{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.big-price{font-family:'Fraunces',serif;font-size:clamp(42px,10vw,88px);font-weight:900;line-height:1;color:var(--gold-lt);letter-spacing:-2px}
+.big-price sup{font-size:.35em;vertical-align:super;font-weight:700;color:var(--gold)}
+.price-period{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
+
+/* platform chips inside featured */
+.plat-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+.plat-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;transition:all .2s;min-height:44px}
+.plat-chip:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)}
+.plat-chip .logo-wrap{display:flex;align-items:center;justify-content:center;width:26px;height:26px}
+.plat-chip .logo-wrap svg{width:100%;height:100%;display:block}
+.plat-chip .chip-txt{font-size:12px;font-weight:600;color:#fff;white-space:nowrap}
+
+/* ── COMBO CARDS ──────────────────────────── */
+.combos-row{display:grid;grid-template-columns:1fr;gap:14px}
+.combos-row .combo-card:last-child:nth-child(4){grid-column:1/-1;max-width:400px;margin:0 auto;width:100%}
+.combo-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px 20px;overflow:hidden;transition:all .3s}
+.combo-card:hover{background:var(--surface2);border-color:rgba(255,255,255,.14);transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.combo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+.combo-popular{border-color:rgba(245,158,11,.35)!important;background:linear-gradient(135deg,rgba(245,158,11,.08) 0%,rgba(124,58,237,.05) 100%)!important}
+.combo-popular:hover{border-color:rgba(245,158,11,.5)!important;transform:translateY(-6px)!important}
+.combo-badge{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:5px}
+.ctag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:5px;margin-bottom:16px}
+.ctag.c{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+.ctag.v{background:rgba(124,58,237,.15);color:var(--violet-light);border:1px solid rgba(124,58,237,.25)}
+.combo-name{font-family:'Fraunces',serif;font-size:26px;font-weight:900;letter-spacing:-.5px;color:#fff;margin-bottom:14px;line-height:1.1}
+.combo-logos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.logo-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-height:40px}
+.logo-pill svg{display:block}
+.logo-pill span{font-size:11px;font-weight:600;color:var(--muted2)}
+.combo-price{font-family:'Fraunces',serif;font-size:38px;font-weight:900;color:var(--gold-lt);letter-spacing:-1px;line-height:1}
+.combo-price small{font-size:14px;font-weight:700;vertical-align:super;color:var(--gold)}
+.combo-desc-txt{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* ── PLATFORMS TABLE ──────────────────────── */
+.pt-table{display:grid;grid-template-columns:1fr;gap:2px;background:var(--border);border-radius:20px;overflow:hidden;border:1px solid var(--border)}
+.pt-row{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;background:var(--deep);padding:16px 14px;transition:background .2s}
+.pt-row:first-child{border-radius:18px 18px 0 0}
+.pt-row:last-child{border-radius:0 0 18px 18px}
+.pt-row:hover{background:rgba(255,255,255,.04)}
+.pt-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pt-icon svg{width:28px;height:28px;display:block}
+.pt-info{flex:1;min-width:0}
+.pt-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.pt-sub{font-size:11px;color:var(--muted)}
+.pt-price{font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--gold-lt);letter-spacing:-.5px;text-align:right;white-space:nowrap}
+.pt-price small{font-size:12px;font-weight:700;color:var(--gold);vertical-align:super}
+
+/* brand bg tints */
+.bg-n{background:rgba(229,9,20,.16)}
+.bg-d{background:rgba(17,60,207,.18)}
+.bg-h{background:rgba(88,34,228,.18)}
+.bg-p{background:rgba(0,168,225,.16)}
+.bg-pm{background:rgba(0,48,135,.18)}
+.bg-sp{background:rgba(29,185,84,.16)}
+.bg-cr{background:rgba(244,117,33,.16)}
+.bg-ca{background:rgba(125,42,232,.18)}
+
+/* ── EXTRAS ───────────────────────────────── */
+.extras-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.extra-card{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 16px;transition:all .25s;min-height:76px}
+.extra-card:hover{background:var(--surface2);border-color:rgba(255,255,255,.13);transform:translateY(-3px)}
+.extra-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.extra-icon svg{width:28px;height:28px;display:block}
+.extra-info{flex:1;min-width:0}
+.extra-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.extra-label{font-size:11px;color:var(--muted)}
+.extra-price{font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--gold-lt);letter-spacing:-.5px;white-space:nowrap}
+.extra-price small{font-size:11px;font-weight:700;color:var(--gold);vertical-align:super}
+
+/* ── DIVIDER ──────────────────────────────── */
+.divider{position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:0 16px 40px}
+.divider-line{height:1px;background:linear-gradient(90deg,transparent,var(--border),var(--border),transparent)}
+
+/* ── CTA ──────────────────────────────────── */
+.cta-wrap{position:relative;z-index:10;padding:0 16px 80px}
+.cta-box{max-width:960px;margin:0 auto;position:relative;border-radius:24px;overflow:hidden;padding:48px 24px;text-align:center;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(6,182,212,.07),rgba(245,158,11,.05));border:1px solid rgba(124,58,237,.25)}
+.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% -10%,rgba(124,58,237,.18),transparent);pointer-events:none}
+.cta-box::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,.6),rgba(6,182,212,.5),transparent)}
+.cta-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:20px}
+.cta-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pdot 2s infinite}
+.cta-title{font-family:'Fraunces',serif;font-size:clamp(28px,6vw,68px);font-weight:900;letter-spacing:-2px;color:#fff;line-height:1;margin-bottom:16px}
+.cta-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta-sub{font-size:15px;color:var(--muted2);max-width:400px;margin:0 auto 36px;line-height:1.7;padding:0 16px}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:0 8px}
+
+/* ── FLOAT WA ─────────────────────────────── */
+.wa-float{position:fixed;bottom:24px;right:24px;z-index:999;width:56px;height:56px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 8px 32px rgba(37,211,102,.45);transition:all .3s}
+.wa-float:hover{transform:scale(1.12) translateY(-3px);box-shadow:0 16px 48px rgba(37,211,102,.55)}
+.wa-float svg{width:26px;height:26px;display:block;fill:#fff}
+.wa-float::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(37,211,102,.4);animation:ring 2s ease-out infinite}
+@keyframes ring{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+
+/* ── REFERRALS ───────────────────────────── */
+.referral-section{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:0 24px 80px}
+.referral-box{position:relative;border-radius:24px;overflow:hidden;padding:40px 32px;background:linear-gradient(135deg,rgba(245,158,11,.08) 0%,rgba(16,185,129,.05) 50%,rgba(124,58,237,.08) 100%);border:1px solid rgba(245,158,11,.25);transition:all .4s cubic-bezier(.16,1,.3,1)}
+.referral-box.expanded{padding:48px 40px;border-color:rgba(245,158,11,.35)}
+.referral-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 20%,rgba(245,158,11,.1),transparent 50%),radial-gradient(ellipse 50% 30% at 70% 80%,rgba(16,185,129,.08),transparent 50%);pointer-events:none}
+
+/* Collapsed State */
+.referral-collapsed{text-align:center;padding:20px 0}
+.referral-icon{font-size:48px;margin-bottom:20px;display:block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.referral-eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:999px;margin-bottom:20px}
+.referral-cta-title{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,44px);font-weight:900;letter-spacing:-1px;color:#fff;margin-bottom:16px}
+.referral-cta-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--gold-lt));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.referral-cta-desc{font-size:16px;color:var(--muted2);max-width:420px;margin:0 auto 32px;line-height:1.7}
+.referral-cta-stats{display:flex;justify-content:center;gap:32px;margin-bottom:28px}
+.stat-item{text-align:center}
+.stat-value{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--gold-lt)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* Expand Button */
+.referral-expand-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:800;font-size:15px;padding:16px 32px;border-radius:14px;text-decoration:none;border:none;cursor:pointer;transition:all .3s;box-shadow:0 8px 32px rgba(245,158,11,.35)}
+.referral-expand-btn:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(245,158,11,.45)}
+.referral-expand-btn svg{transition:transform .3s}
+.referral-expand-btn:hover svg{transform:translateX(4px)}
+
+/* Expanded Content */
+.referral-expanded{display:none;margin-top:40px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)}
+.referral-box.expanded .referral-expanded{display:block}
+.referral-box.expanded .referral-collapsed{display:none}
+
+.referral-header{text-align:center;margin-bottom:36px}
+.referral-title{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,40px);font-weight:900;letter-spacing:-1px;color:#fff;margin-bottom:12px}
+.referral-title em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--gold-lt));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.referral-subtitle{font-size:15px;color:var(--muted2);max-width:480px;margin:0 auto;line-height:1.7}
+
+/* Benefits Grid */
+.referral-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px}
+.benefit-card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px 20px;text-align:center;transition:all .25s;position:relative}
+.benefit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent)}
+.benefit-card:hover{background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.12);transform:translateY(-3px)}
+.benefit-icon{font-size:28px;margin-bottom:12px;display:block}
+.benefit-value{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--gold-lt);margin-bottom:6px}
+.benefit-label{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px}
+.benefit-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Steps */
+.referral-steps{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:36px;flex-wrap:wrap}
+.step-item{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.15);border:1px solid var(--border);border-radius:12px;padding:12px 18px;transition:all .2s}
+.step-item:hover{background:rgba(0,0,0,.25);border-color:rgba(255,255,255,.1)}
+.step-number{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d97706);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#000;flex-shrink:0}
+.step-text{font-size:13px;font-weight:600;color:#fff}
+.step-arrow{color:var(--gold);font-size:16px;opacity:.5}
+
+/* Conditions */
+.referral-conditions{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:20px 24px;margin-bottom:28px}
+.conditions-title{font-size:14px;font-weight:700;color:var(--gold-lt);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.conditions-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.conditions-list li{font-size:13px;color:var(--muted2);padding-left:20px;position:relative;line-height:1.5}
+.conditions-list li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
+.conditions-list li strong{color:#fff}
+
+/* Code Generator */
+.code-generator{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;margin-bottom:28px}
+.code-generator-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;text-align:center}
+.code-generator-title span{color:var(--gold-lt)}
+
+.code-input-group{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+.code-input-group input{flex:1;min-width:200px;max-width:280px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px 18px;font-size:16px;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.code-input-group input::placeholder{color:var(--muted);font-weight:400}
+.code-input-group input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+
+.code-generate-btn{background:linear-gradient(135deg,var(--violet),#5b21b6);color:#fff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;border:none;cursor:pointer;transition:all .25s;white-space:nowrap}
+.code-generate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.4)}
+
+.code-display-box{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:18px 24px;text-align:center;display:none}
+.code-display-box.visible{display:block}
+.code-label{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.code-value{font-family:'Courier New',monospace;font-size:22px;font-weight:700;color:var(--gold-lt);letter-spacing:2px}
+
+.code-actions{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.code-actions .btn-primary{min-width:200px}
+.code-note{font-size:12px;color:var(--muted2);margin-top:16px;text-align:center}
+
+/* WhatsApp referral message */
+.wa-referral-note{background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:16px;margin-top:20px}
+.wa-referral-note p{font-size:13px;color:var(--muted2);margin:0}
+.wa-referral-note strong{color:#fff}
+
+/* Animations */
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ── FOOTER ───────────────────────────────── */
+footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:32px 16px;text-align:center}
+.footer-logo{font-family:'Fraunces',serif;font-size:24px;font-weight:900;font-style:italic;background:linear-gradient(135deg,#fff,var(--violet-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.footer-copy{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ── SCROLL REVEAL ────────────────────────── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.on{opacity:1;transform:translateY(0)}
+.s1{transition-delay:.05s}.s2{transition-delay:.12s}.s3{transition-delay:.19s}.s4{transition-delay:.26s}.s5{transition-delay:.33s}
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media(max-width:768px){
+  .hero{padding:90px 16px 50px}
+  .hero-title{font-size:clamp(42px,11vw,72px)}
+  .hero-sub{padding:0 12px;font-size:14px}
+  .logo-strip{gap:12px;padding-bottom:50px}
+  .trust-row{grid-template-columns:repeat(2,1fr);gap:10px}
+  .section{padding:0 16px 80px}
+  .section-desc{margin-bottom:36px;font-size:14px}
+  .featured{padding:24px 18px;border-radius:20px}
+  .feat-header{flex-direction:column;gap:16px}
+  .feat-price-box{text-align:left;width:100%}
+  .big-price{font-size:clamp(36px,12vw,52px)}
+  .plat-row{gap:8px;margin-bottom:24px}
+  .plat-chip{padding:8px 12px}
+  .pt-row{grid-template-columns:44px 1fr auto;padding:14px 12px;gap:10px}
+  .pt-icon{width:44px;height:44px;border-radius:10px}
+  .pt-icon svg{width:24px;height:24px}
+  .pt-price{font-size:22px}
+  .pt-name{font-size:14px}
+  .pt-sub{font-size:10px}
+  .extras-grid{grid-template-columns:1fr}
+  .extra-card{padding:16px 14px}
+  .cta-box{padding:40px 20px}
+  .wa-float{bottom:16px;right:16px;width:54px;height:54px}
+  .referral-section{padding:0 16px 60px}
+  .referral-box{padding:32px 20px}
+  .referral-box.expanded{padding:36px 20px}
+  .referral-cta-stats{gap:20px}
+  .stat-value{font-size:24px}
+  .referral-expand-btn{padding:14px 24px;font-size:14px}
+  .referral-benefits{grid-template-columns:1fr;gap:12px}
+  .benefit-card{padding:20px 16px}
+  .referral-steps{flex-direction:column;align-items:stretch;gap:8px}
+  .step-arrow{display:none}
+  .step-item{justify-content:center}
+  .code-input-group{flex-direction:column}
+  .code-input-group input{max-width:100%}
+  .code-generator{padding:20px 16px}
+  .code-value{font-size:18px}
+}
+@media(min-width:769px){
+  .trust-row{grid-template-columns:repeat(4,1fr)}
+  .combos-row{grid-template-columns:repeat(2,1fr);justify-items:center}
+  .combos-row .combo-card{width:100%;max-width:420px}
+  .combos-row .combo-card:last-child:nth-child(4){grid-column:1/-1;max-width:420px}
+  .extras-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:1024px){
+  .combos-row{grid-template-columns:repeat(3,1fr);justify-items:center}
+  .combos-row .combo-card{max-width:380px}
+  .combos-row .combo-card:last-child:nth-child(4){grid-column:2;max-width:380px}
+  .extras-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- ═══════ NAV ═══════ -->
+<nav>
+  <div class="nav-logo">Xoriva</div>
+  <ul class="nav-links">
+    <li><a href="#combos">Combos</a></li>
+    <li><a href="#plataformas">Plataformas</a></li>
+    <li><a href="#ia">IA</a></li>
+    <li><a href="#herramientas">Herramientas</a></li>
+    <li><a href="#rewards">Rewards</a></li>
+    <li>
+      <a href="https://wa.me/573219060576" target="_blank" class="nav-cta">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+        Contactar
+      </a>
+    </li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Menú">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="#combos">🔥 Combos</a>
+  <a href="#plataformas">📺 Plataformas</a>
+  <a href="#musica">🎵 Música</a>
+  <a href="#ia">🤖 IA / Productividad</a>
+  <a href="#herramientas">🛠️ Herramientas</a>
+  <a href="#rewards">⭐ Rewards</a>
+  <a href="https://wa.me/573219060576" target="_blank" class="nav-cta-mobile">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+    Contactar por WhatsApp
+  </a>
+</div>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+  <div class="hero-chip"><div class="chip-dot"></div>Streaming Premium · Colombia</div>
+  <h1 class="hero-title">XORIVA<br><span class="grad">Streaming</span></h1>
+  <p class="hero-sub">Accede a las mejores plataformas de entretenimiento al mejor precio.<br>Activación inmediata, soporte personalizado.</p>
+  <div class="hero-actions">
+    <a href="#combos" class="btn-primary">Ver catálogo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="https://wa.me/573219060576" target="_blank" class="btn-ghost">💬 Hablar con un asesor</a>
+  </div>
+</section>
+
+<!-- ═══════ LOGO STRIP ═══════ -->
+<div class="logo-strip">
+  <div class="strip-label">Plataformas y servicios disponibles</div>
+
+  <!-- Netflix -->
+  <div class="strip-logo" title="Netflix">
+    <svg width="28" height="48" viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#E50914" d="M105.3 187.2c-3.8-2.3-7.1-5.7-10.4-10.4-3.2-4.6-4.6-8.1-6.4-14.4l-.8-2.8-2.1 2.4c-5.3 6.1-10.6 10.4-15.8 12.8-4.2 2-9.2 3.1-14.5 3.1-3.3 0-6.3-.5-9.4-1.6-2.2-.8-4.4-1.9-6.3-3.3-1.9-1.4-3.5-3.1-4.8-5-2.5-3.6-3.8-8-3.8-12.8 0-4.6 1.2-8.9 3.6-12.7 2.4-3.8 5.7-6.9 9.9-9.2 4.2-2.3 9.1-3.5 14.5-3.5 4.8 0 9.1.9 13.2 2.8 2.8 1.3 5.5 3.1 8 5.5l2.3 2.2 1.2-2.9c2-4.9 4.1-8.7 6.4-11.6 2.3-2.9 5-5.2 8.1-6.9l2-1.1-.5-2.1c-.8-3.5-1.2-7.3-1.2-11.2 0-5.9 1.1-11.5 3.2-16.6 2.1-5.1 5.2-9.8 9.1-13.9l1.7-1.8v65.3c-.1 23.2-.2 42.3-.4 42.6-.2.2-2.3-1-5.1-2.6zM0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0V0z"/>
+    </svg>
+  </div>
+
+  <!-- Spotify -->
+  <div class="strip-logo" title="Spotify">
+    <svg width="40" height="40" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="84" cy="84" r="84" fill="#1DB954"/>
+      <path fill="#fff" d="M120.9 117.5c-1.8 0-2.9-.6-4.5-1.5-13.1-8-28.8-12.2-46.2-12.2-9.9 0-19.8 1.4-29.1 3.5-1.6.4-3.7 1-5 1-3.7 0-6.2-2.8-6.2-6.3 0-4 2.3-6 5.5-6.8 11.4-2.7 22.9-4.2 34.9-4.2 20.2 0 38.3 4.9 53.4 14.2 2.5 1.5 4.2 3.2 4.2 6.5-.1 3.5-2.8 5.8-7 5.8zm8.4-25.6c-2.1 0-3.6-.8-5.2-1.8C108.7 80.5 88.5 75 65.7 75c-10.3 0-20 1.4-27.8 3.5-2 .6-3.2 1.1-5 1.1-4.5 0-7.8-3.5-7.8-7.8 0-4.4 2.3-7.2 6.4-8.3 9.8-2.8 20.6-4.5 34.2-4.5 25.3 0 48.3 6.4 66.8 18.3 3.1 1.9 5 4.2 5 8.1 0 4.5-3.5 7.5-8.1 7.5zm9.3-28.1c-1.9 0-3.2-.5-5-1.5C116.2 51 91.2 45 63.9 45c-11.7 0-22.7 1.6-32.8 4.4-2.1.6-3.7 1.1-5.6 1.1-5.5 0-9.4-4.2-9.4-9.7 0-5.6 3.2-8.7 7.6-10 12.1-3.5 25-5.4 40.2-5.4 29.8 0 57.4 7.1 79 20.8 3.5 2.1 5.7 5 5.7 9.6 0 5.5-4.2 9.6-10 9.6z"/>
+    </svg>
+  </div>
+
+  <!-- Disney+ -->
+  <div class="strip-logo" title="Disney+">
+    <svg width="56" height="32" viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg">
+      <rect width="260" height="148" rx="12" fill="#113CCF"/>
+      <text x="130" y="105" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="90" fill="#fff">D+</text>
+    </svg>
+  </div>
+
+  <!-- HBO Max -->
+  <div class="strip-logo" title="HBO Max">
+    <svg width="56" height="30" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="100" rx="10" fill="linear-gradient(135deg, #5C2D91, #8B5CF6)"/>
+      <rect width="200" height="100" rx="10" fill="#5822E4"/>
+      <text x="100" y="62" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#fff">HBO</text>
+      <text x="100" y="88" text-anchor="middle" font-family="Arial,sans-serif" font-weight="400" font-size="18" fill="rgba(255,255,255,0.9)">max</text>
+    </svg>
+  </div>
+
+  <!-- Prime Video -->
+  <div class="strip-logo" title="Prime Video">
+    <svg width="56" height="30" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="100" rx="10" fill="#0F171E"/>
+      <text x="100" y="45" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#00A8E1">prime</text>
+      <text x="100" y="75" text-anchor="middle" font-family="Arial,sans-serif" font-weight="600" font-size="20" fill="#fff">video</text>
+      <path fill="#00A8E1" d="M100 88c-15 0-28-5-35-12l5 2c8 5 18 8 30 8s22-3 30-8l5-2c-7 7-20 12-35 12z"/>
+    </svg>
+  </div>
+
+  <!-- Paramount+ -->
+  <div class="strip-logo" title="Paramount+">
+    <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="20" fill="#003087"/>
+      <path fill="#fff" d="M50 18c-17.7 0-32 10.7-32 24s14.3 24 32 24 32-10.7 32-24-14.3-24-32-24zm0 42c-13.3 0-24-6.3-24-14s10.7-14 24-14 24 6.3 24 14-10.7 14-24 14z"/>
+      <polygon points="50,28 56,44 44,44" fill="#0064FF"/>
+    </svg>
+  </div>
+
+  <!-- Apple TV -->
+  <div class="strip-logo" title="Apple TV+">
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="8" fill="#000"/>
+      <path fill="#fff" d="M20 8c-6.6 0-12 5.4-12 12s5.4 12 12 12 12-5.4 12-12S26.6 8 20 8zm0 22c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10z"/>
+      <path fill="#fff" d="M24.5 15.5c-.5-.2-1-.5-1.5-.5-.8 0-1.5.4-2 1-.4.5-.6 1.2-.6 2v.5h-2v2h2v6h2v-6h2v-2h-2v-.3c0-.4.1-.7.3-.9.2-.2.5-.3.8-.3.3 0 .6.1.8.3l1-1.5c-.4-.3-.8-.5-1.8-.3z"/>
+    </svg>
+  </div>
+
+  <!-- Crunchyroll -->
+  <div class="strip-logo" title="Crunchyroll">
+    <svg width="42" height="42" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="98" fill="#F47521"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="#fff" stroke-width="14"/>
+      <circle cx="100" cy="58" r="20" fill="#fff"/>
+    </svg>
+  </div>
+
+  <!-- Canva -->
+  <div class="strip-logo" title="Canva Pro">
+    <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="20" fill="#7D2AE8"/>
+      <text x="50" y="68" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="56" fill="#fff">C</text>
+    </svg>
+  </div>
+
+  <!-- Gemini -->
+  <div class="strip-logo" title="Google Gemini">
+    <svg width="42" height="42" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gemini-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#4285F4"/>
+          <stop offset="50%" style="stop-color:#9B72CB"/>
+          <stop offset="100%" style="stop-color:#D96570"/>
+        </linearGradient>
+      </defs>
+      <circle cx="84" cy="84" r="84" fill="url(#gemini-bg)"/>
+      <path fill="#fff" d="M84 28c-30.9 0-56 25.1-56 56s25.1 56 56 56 56-25.1 56-56-25.1-56-56-56zm0 100c-24.3 0-44-19.7-44-44s19.7-44 44-44 44 19.7 44 44-19.7 44-44 44z" opacity="0.9"/>
+      <polygon points="84,50 92,70 84,78 76,70" fill="#fff"/>
+    </svg>
+  </div>
+
+  <!-- ChatGPT -->
+  <div class="strip-logo" title="ChatGPT Pro">
+    <svg width="42" height="42" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="84" cy="84" r="84" fill="#10A37F"/>
+      <path fill="#fff" d="M131.5 85.2c0-6.5-2.2-12.5-5.9-17.3 2.3-5.1 2-11-.9-15.9-2.9-5-7.9-8.1-13.3-8.2-1.6-5.4-5.5-9.8-10.7-11.7-5.2-2-11.1-1.3-15.8 1.8-4.6-3.2-10.5-4-16-2-5.4 2-9.5 6.5-11 11.9-5.5.2-10.5 3.3-13.4 8.3-2.9 5-3.2 10.9-.8 16.1-3.6 4.7-5.7 10.6-5.7 16.9 0 6.6 2.3 12.6 6.1 17.5-2.4 5.2-2.1 11.1.8 16.1 2.9 5.1 8 8.2 13.5 8.3 1.6 5.4 5.5 9.8 10.8 11.7 5.2 2 11.1 1.2 15.8-1.9 4.7 3.1 10.6 3.9 16 1.9 5.4-2 9.5-6.4 11-11.8 5.5-.1 10.6-3.2 13.5-8.3 2.9-5.1 3.2-11 .7-16.2 3.6-4.8 5.6-10.6 5.6-16.9l-.4-.4z"/>
+    </svg>
+  </div>
+
+  <!-- CapCut -->
+  <div class="strip-logo" title="CapCut Pro">
+    <svg width="42" height="42" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+      <rect width="168" height="168" rx="32" fill="#000"/>
+      <circle cx="84" cy="84" r="56" fill="none" stroke="#fff" stroke-width="8"/>
+      <path fill="#fff" d="M64 84l28-20v40l-28-20z"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ TRUST ═══════ -->
+<div class="trust-row">
+  <div class="trust-card"><div class="trust-icon">⚡</div><div class="trust-lbl">Activación inmediata</div><div class="trust-desc">Tu cuenta lista en minutos tras el pago</div></div>
+  <div class="trust-card"><div class="trust-icon">🔒</div><div class="trust-lbl">100% Confiable</div><div class="trust-desc">Cuentas garantizadas y soporte post-venta</div></div>
+  <div class="trust-card"><div class="trust-icon">💬</div><div class="trust-lbl">Soporte directo</div><div class="trust-desc">Atención personalizada por WhatsApp</div></div>
+  <div class="trust-card"><div class="trust-icon">💰</div><div class="trust-lbl">Mejor precio</div><div class="trust-desc">Sin mensualidades ocultas ni cobros extras</div></div>
+</div>
+
+<!-- ═══════ COMBOS ═══════ -->
+<section class="section" id="combos">
+  <div class="reveal">
+    <div class="eyebrow">Ofertas especiales</div>
+    <h2 class="section-title">Nuestros <em>Combos</em></h2>
+    <p class="section-desc">Ahorra más accediendo a múltiples plataformas en un solo pago.</p>
+  </div>
+
+  <!-- FEATURED - XORIVA TOTAL+ -->
+  <div class="featured reveal">
+    <div class="feat-header">
+      <div>
+        <div class="feat-badge">⭐ Combo Premium</div>
+        <div class="feat-name">XORIVA<br>TOTAL+</div>
+        <p class="feat-desc">Todo el entretenimiento premium en un solo pago. Series, películas, música y deportes sin anuncios.</p>
+      </div>
+      <div class="feat-price-box">
+        <div class="price-from">Precio</div>
+        <div class="big-price"><sup>$</sup>34.000</div>
+        <div class="price-period">Activación inmediata</div>
+      </div>
+    </div>
+
+    <div class="plat-row">
+      <div class="plat-chip">
+        <div class="logo-wrap">
+          <svg viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+        </div>
+        <span class="chip-txt">Netflix</span>
+      </div>
+      <div class="plat-chip">
+        <div class="logo-wrap">
+          <svg viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg"><circle cx="84" cy="84" r="84" fill="#1DB954"/><path fill="#fff" d="M120.9 117.5c-1.8 0-2.9-.6-4.5-1.5-13.1-8-28.8-12.2-46.2-12.2-9.9 0-19.8 1.4-29.1 3.5-1.6.4-3.7 1-5 1-3.7 0-6.2-2.8-6.2-6.3 0-4 2.3-6 5.5-6.8 11.4-2.7 22.9-4.2 34.9-4.2 20.2 0 38.3 4.9 53.4 14.2 2.5 1.5 4.2 3.2 4.2 6.5-.1 3.5-2.8 5.8-7 5.8zm8.4-25.6c-2.1 0-3.6-.8-5.2-1.8C108.7 80.5 88.5 75 65.7 75c-10.3 0-20 1.4-27.8 3.5-2 .6-3.2 1.1-5 1.1-4.5 0-7.8-3.5-7.8-7.8 0-4.4 2.3-7.2 6.4-8.3 9.8-2.8 20.6-4.5 34.2-4.5 25.3 0 48.3 6.4 66.8 18.3 3.1 1.9 5 4.2 5 8.1 0 4.5-3.5 7.5-8.1 7.5zm9.3-28.1c-1.9 0-3.2-.5-5-1.5C116.2 51 91.2 45 63.9 45c-11.7 0-22.7 1.6-32.8 4.4-2.1.6-3.7 1.1-5.6 1.1-5.5 0-9.4-4.2-9.4-9.7 0-5.6 3.2-8.7 7.6-10 12.1-3.5 25-5.4 40.2-5.4 29.8 0 57.4 7.1 79 20.8 3.5 2.1 5.7 5 5.7 9.6 0 5.5-4.2 9.6-10 9.6z"/></svg>
+        </div>
+        <span class="chip-txt">Spotify</span>
+      </div>
+      <div class="plat-chip">
+        <div class="logo-wrap">
+          <svg viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+        </div>
+        <span class="chip-txt">Disney Premium</span>
+      </div>
+      <div class="plat-chip">
+        <div class="logo-wrap">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#5822E4"/><text x="100" y="68" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="58" fill="#fff">HBO</text></svg>
+        </div>
+        <span class="chip-txt">HBO sin anuncios</span>
+      </div>
+    </div>
+
+    <a href="https://wa.me/573219060576?text=Hola!%20Quiero%20el%20Combo%20XORIVA%20TOTAL%2B%20%F0%9F%94%A5" target="_blank" class="btn-primary">
+      Pedir este combo
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- OTHER COMBOS GRID -->
+  <div class="combos-row">
+    <div class="combo-card reveal s1">
+      <div class="ctag c">🍿 Maratón</div>
+      <div class="combo-name">XORIVA Primeflix</div>
+      <div class="combo-logos">
+        <div class="logo-pill">
+          <svg width="18" height="30" viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+          <span>Netflix</span>
+        </div>
+        <div class="logo-pill">
+          <svg width="32" height="16" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#00A8E1"/><text x="100" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="28" fill="#fff">prime</text><text x="100" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#fff">video</text></svg>
+          <span>Prime Video</span>
+        </div>
+      </div>
+      <div class="combo-price"><small>$</small>20.000</div>
+      <div class="combo-desc-txt">Netflix + Prime Video · Activación inmediata</div>
+    </div>
+
+    <div class="combo-card reveal s2">
+      <div class="ctag v">🎬 Popular</div>
+      <div class="combo-name">Netflix + Disney Premium</div>
+      <div class="combo-logos">
+        <div class="logo-pill">
+          <svg width="18" height="30" viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+          <span>Netflix</span>
+        </div>
+        <div class="logo-pill">
+          <svg width="32" height="18" viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+          <span>Disney Premium</span>
+        </div>
+      </div>
+      <div class="combo-price"><small>$</small>22.000</div>
+      <div class="combo-desc-txt">Netflix + Disney Premium · Activación inmediata</div>
+    </div>
+
+    <div class="combo-card reveal s3">
+      <div class="ctag c">⚽ Deportes</div>
+      <div class="combo-name">Netflix + Disney + ESPN</div>
+      <div class="combo-logos">
+        <div class="logo-pill">
+          <svg width="18" height="30" viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+          <span>Netflix</span>
+        </div>
+        <div class="logo-pill">
+          <svg width="32" height="18" viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+          <span>Disney</span>
+        </div>
+        <div class="logo-pill" style="background:rgba(229,9,20,.15);border-color:rgba(229,9,20,.3);">
+          <span style="color:#E50914;font-weight:800;">ESPN</span>
+        </div>
+      </div>
+      <div class="combo-price"><small>$</small>24.000</div>
+      <div class="combo-desc-txt">Netflix + Disney + ESPN · Activación inmediata</div>
+    </div>
+
+    <div class="combo-card reveal s4 combo-popular">
+      <div class="combo-badge">🔥 Más vendido</div>
+      <div class="ctag v">🎬 Premium</div>
+      <div class="combo-name">Netflix + HBO sin anuncios</div>
+      <div class="combo-logos">
+        <div class="logo-pill">
+          <svg width="18" height="30" viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+          <span>Netflix</span>
+        </div>
+        <div class="logo-pill">
+          <svg width="32" height="16" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#5822E4"/><text x="100" y="68" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="58" fill="#fff">HBO</text></svg>
+          <span>HBO sin anuncios</span>
+        </div>
+      </div>
+      <div class="combo-price"><small>$</small>19.000</div>
+      <div class="combo-desc-txt">Netflix + HBO Max sin anuncios · Activación inmediata</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ PLATAFORMAS INDIVIDUALES ═══════ -->
+<section class="section" id="plataformas">
+  <div class="reveal">
+    <div class="eyebrow">A la carta</div>
+    <h2 class="section-title">Plataformas <em>Individuales</em></h2>
+    <p class="section-desc">¿Solo necesitas una plataforma? Elige exactamente lo que quieres.</p>
+  </div>
+
+  <div class="pt-table reveal">
+    <!-- NETFLIX -->
+    <div class="pt-row">
+      <div class="pt-icon bg-n">
+        <svg viewBox="0 0 111 190" xmlns="http://www.w3.org/2000/svg"><path fill="#E50914" d="M0 0h30.6l.4 114.4L80.8 0H111v190H80.4l-.4-114.8L30.6 190H0z"/></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Netflix</div><div class="pt-sub">Pantalla Premium · 4K Ultra HD</div></div>
+      <div class="pt-price"><small>$</small>14.000</div>
+    </div>
+
+    <!-- DISNEY STANDARD -->
+    <div class="pt-row">
+      <div class="pt-icon bg-d">
+        <svg viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Disney Standard</div><div class="pt-sub">Marvel, Star Wars, Pixar</div></div>
+      <div class="pt-price"><small>$</small>7.000</div>
+    </div>
+
+    <!-- DISNEY PREMIUM -->
+    <div class="pt-row">
+      <div class="pt-icon bg-d" style="background:rgba(17,60,207,.28);">
+        <svg viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Disney Premium</div><div class="pt-sub">Contenido completo sin límites</div></div>
+      <div class="pt-price"><small>$</small>9.000</div>
+    </div>
+
+    <!-- DISNEY + ESPN -->
+    <div class="pt-row">
+      <div class="pt-icon bg-d" style="background:linear-gradient(135deg,rgba(17,60,207,.25),rgba(229,9,20,.2));">
+        <svg viewBox="0 0 260 148" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="148" rx="8" fill="#113CCF"/><text x="130" y="110" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="100" fill="#fff">D+</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Disney + ESPN</div><div class="pt-sub">Deportes en vivo incluidos</div></div>
+      <div class="pt-price"><small>$</small>11.000</div>
+    </div>
+
+    <!-- HBO CON ANUNCIOS -->
+    <div class="pt-row">
+      <div class="pt-icon bg-h">
+        <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#5822E4"/><text x="100" y="68" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="58" fill="#fff">HBO</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">HBO Max (con anuncios)</div><div class="pt-sub">Series premium con publicidad</div></div>
+      <div class="pt-price"><small>$</small>5.000</div>
+    </div>
+
+    <!-- HBO SIN ANUNCIOS -->
+    <div class="pt-row">
+      <div class="pt-icon bg-h" style="background:rgba(88,34,228,.28);">
+        <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#5822E4"/><text x="100" y="68" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="58" fill="#fff">HBO</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">HBO Max (sin anuncios)</div><div class="pt-sub">Experiencia premium sin interrupciones</div></div>
+      <div class="pt-price"><small>$</small>7.000</div>
+    </div>
+
+    <!-- PRIME VIDEO -->
+    <div class="pt-row">
+      <div class="pt-icon bg-p">
+        <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#00A8E1"/><text x="100" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="28" fill="#fff">prime</text><text x="100" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#fff">video</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Prime Video</div><div class="pt-sub">Pantalla · Originales Amazon</div></div>
+      <div class="pt-price"><small>$</small>8.000</div>
+    </div>
+
+    <!-- PARAMOUNT -->
+    <div class="pt-row">
+      <div class="pt-icon bg-pm">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#003087"/><polygon points="50,12 70,52 30,52" fill="#fff"/><circle cx="28" cy="32" r="4" fill="#FFD700"/><circle cx="72" cy="32" r="4" fill="#FFD700"/><circle cx="18" cy="44" r="3" fill="#FFD700"/><circle cx="82" cy="44" r="3" fill="#FFD700"/><text x="50" y="84" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="16" fill="#fff">P+</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Paramount</div><div class="pt-sub">Pantalla · CBS, Showtime</div></div>
+      <div class="pt-price"><small>$</small>5.000</div>
+    </div>
+
+    <!-- APPLE TV -->
+    <div class="pt-row">
+      <div class="pt-icon" style="background:rgba(0,0,0,.7);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.63 9.39c.84-1.48 2.35-2.41 3.98-2.44 1.27-.02 2.47.86 3.25.86.77 0 2.24-1.06 3.77-.9.65.03 2.47.27 3.64 2.02-.09.06-2.17 1.34-2.15 3.98.03 3.2 2.78 4.27 2.81 4.28-.03.07-.45 1.55-1.47 3.07zm-5.5-15.5c.72-.88 1.2-2.09 1.07-3.31-1.03.04-2.31.7-3.04 1.56-.67.78-1.26 2.02-1.1 3.2 1.14.09 2.35-.58 3.07-1.45z"/></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Apple TV</div><div class="pt-sub">Pantalla · Originales Apple</div></div>
+      <div class="pt-price"><small>$</small>5.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ CUENTAS COMPLETAS ═══════ -->
+<section class="section" id="cuentas">
+  <div class="reveal">
+    <div class="eyebrow">Acceso total</div>
+    <h2 class="section-title">Cuentas <em>Completas</em></h2>
+    <p class="section-desc">Cuentas personales con acceso completo. Sobre pedido.</p>
+  </div>
+
+  <div class="extras-grid">
+    <div class="extra-card reveal s1">
+      <div class="extra-icon bg-p">
+        <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" rx="8" fill="#00A8E1"/><text x="100" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="28" fill="#fff">prime</text><text x="100" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#fff">video</text></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Prime Video Completa</div><div class="extra-label">SOBRE PEDIDO</div></div>
+      <div class="extra-price"><small>$</small>16.000</div>
+    </div>
+
+    <div class="extra-card reveal s2">
+      <div class="extra-icon bg-pm">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#003087"/><polygon points="50,12 70,52 30,52" fill="#fff"/><circle cx="28" cy="32" r="4" fill="#FFD700"/><circle cx="72" cy="32" r="4" fill="#FFD700"/><text x="50" y="82" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="14" fill="#fff">P+</text></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Paramount Completa</div><div class="extra-label">SOBRE PEDIDO</div></div>
+      <div class="extra-price"><small>$</small>8.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ MÚSICA ═══════ -->
+<section class="section" id="musica">
+  <div class="reveal">
+    <div class="eyebrow">Música</div>
+    <h2 class="section-title"><em>Música</em></h2>
+    <p class="section-desc">Tu música favorita sin interrupciones.</p>
+  </div>
+
+  <div class="extras-grid">
+    <div class="extra-card reveal s1">
+      <div class="extra-icon bg-sp">
+        <svg viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg"><circle cx="84" cy="84" r="84" fill="#1DB954"/><path fill="#fff" d="M120.9 117.5c-1.8 0-2.9-.6-4.5-1.5-13.1-8-28.8-12.2-46.2-12.2-9.9 0-19.8 1.4-29.1 3.5-1.6.4-3.7 1-5 1-3.7 0-6.2-2.8-6.2-6.3 0-4 2.3-6 5.5-6.8 11.4-2.7 22.9-4.2 34.9-4.2 20.2 0 38.3 4.9 53.4 14.2 2.5 1.5 4.2 3.2 4.2 6.5-.1 3.5-2.8 5.8-7 5.8zm8.4-25.6c-2.1 0-3.6-.8-5.2-1.8C108.7 80.5 88.5 75 65.7 75c-10.3 0-20 1.4-27.8 3.5-2 .6-3.2 1.1-5 1.1-4.5 0-7.8-3.5-7.8-7.8 0-4.4 2.3-7.2 6.4-8.3 9.8-2.8 20.6-4.5 34.2-4.5 25.3 0 48.3 6.4 66.8 18.3 3.1 1.9 5 4.2 5 8.1 0 4.5-3.5 7.5-8.1 7.5zm9.3-28.1c-1.9 0-3.2-.5-5-1.5C116.2 51 91.2 45 63.9 45c-11.7 0-22.7 1.6-32.8 4.4-2.1.6-3.7 1.1-5.6 1.1-5.5 0-9.4-4.2-9.4-9.7 0-5.6 3.2-8.7 7.6-10 12.1-3.5 25-5.4 40.2-5.4 29.8 0 57.4 7.1 79 20.8 3.5 2.1 5.7 5 5.7 9.6 0 5.5-4.2 9.6-10 9.6z"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Spotify Premium</div><div class="extra-label">Música sin anuncios · Activación inmediata</div></div>
+      <div class="extra-price"><small>$</small>11.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ ENTRETENIMIENTO EXTRA ═══════ -->
+<section class="section" id="entretenimiento">
+  <div class="reveal">
+    <div class="eyebrow">Entretenimiento</div>
+    <h2 class="section-title">Entretenimiento <em>Extra</em></h2>
+    <p class="section-desc">Anime y más opciones de entretenimiento.</p>
+  </div>
+
+  <div class="extras-grid">
+    <div class="extra-card reveal s1">
+      <div class="extra-icon bg-cr">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="100" fill="#F47521"/><circle cx="100" cy="100" r="72" fill="none" stroke="#fff" stroke-width="16"/><circle cx="100" cy="56" r="24" fill="#fff"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Crunchyroll Pantalla</div><div class="extra-label">Anime · Activación inmediata</div></div>
+      <div class="extra-price"><small>$</small>5.000</div>
+    </div>
+
+    <div class="extra-card reveal s2">
+      <div class="extra-icon bg-cr" style="background:rgba(244,117,33,.28);">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="100" fill="#F47521"/><circle cx="100" cy="100" r="72" fill="none" stroke="#fff" stroke-width="16"/><circle cx="100" cy="56" r="24" fill="#fff"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Crunchyroll Completa</div><div class="extra-label">SOBRE PEDIDO · Cuenta completa</div></div>
+      <div class="extra-price"><small>$</small>9.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ IA / PRODUCTIVIDAD ═══════ -->
+<section class="section" id="ia">
+  <div class="reveal">
+    <div class="eyebrow">Inteligencia Artificial</div>
+    <h2 class="section-title">IA / <em>Productividad</em></h2>
+    <p class="section-desc">Potencia tu trabajo con las mejores herramientas de IA.</p>
+  </div>
+
+  <div class="extras-grid">
+    <div class="extra-card reveal s1">
+      <div class="extra-icon" style="background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.12.81-.72z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Gemini Pro + 2TB</div><div class="extra-label">SOBRE PEDIDO · 1 mes · 1 dispositivo</div></div>
+      <div class="extra-price"><small>$</small>15.000</div>
+    </div>
+
+    <div class="extra-card reveal s2">
+      <div class="extra-icon" style="background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.12.81-.72z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Gemini Pro + 2TB</div><div class="extra-label">SOBRE PEDIDO · 1 Año · 1 dispositivo</div></div>
+      <div class="extra-price"><small>$</small>36.000</div>
+    </div>
+
+    <div class="extra-card reveal s3">
+      <div class="extra-icon" style="background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.12.81-.72z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">Gemini Ultra</div><div class="extra-label">SOBRE PEDIDO · Cuenta completa 1 mes</div></div>
+      <div class="extra-price"><small>$</small>27.000</div>
+    </div>
+
+    <div class="extra-card reveal s4">
+      <div class="extra-icon" style="background:linear-gradient(135deg,#10a37f,#1a7f5a);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M22.2819 9.8211a5.2302 5.2302 0 0 0-.527-4.141 5.3451 5.3451 0 0 0-3.925-2.5418 5.2696 5.2696 0 0 0-3.3271.8398 5.2498 5.2498 0 0 0-3.5028-1.3025 5.3461 5.3461 0 0 0-4.141 2.5418 5.2696 5.2696 0 0 0-.8398 3.3271 5.2498 5.2498 0 0 0-1.3025 3.5028 5.3461 5.3461 0 0 0 2.5418 4.141 5.2696 5.2696 0 0 0 3.3271-.8398 5.2498 5.2498 0 0 0 3.5028 1.3025 5.3461 5.3461 0 0 0 4.141-2.5418 5.2696 5.2696 0 0 0 .8398-3.3271 5.2498 5.2498 0 0 0 1.3025-3.5028z"/></svg>
+      </div>
+      <div class="extra-info"><div class="extra-name">ChatGPT Pro</div><div class="extra-label">SOBRE PEDIDO · IA avanzada ilimitada</div></div>
+      <div class="extra-price"><small>$</small>20.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ HERRAMIENTAS DIGITALES ═══════ -->
+<section class="section" id="herramientas">
+  <div class="reveal">
+    <div class="eyebrow">Herramientas Digitales</div>
+    <h2 class="section-title">Herramientas <em>Digitales</em></h2>
+    <p class="section-desc">Potencia tu productividad con las mejores herramientas.</p>
+  </div>
+
+  <div class="pt-table reveal">
+    <!-- CANVA PRO PLANES -->
+    <div class="pt-row" style="background:linear-gradient(135deg,rgba(125,42,232,.1),rgba(125,42,232,.05));">
+      <div class="pt-icon bg-ca">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#7D2AE8"/><text x="50" y="72" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="68" fill="#fff">C</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Canva Pro — 1 mes</div><div class="pt-sub">Diseño · Plantillas premium · IA</div></div>
+      <div class="pt-price"><small>$</small>5.000</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-icon bg-ca">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#7D2AE8"/><text x="50" y="72" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="68" fill="#fff">C</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Canva Pro — 2 meses</div><div class="pt-sub">SOBRE PEDIDO</div></div>
+      <div class="pt-price"><small>$</small>7.000</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-icon bg-ca">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#7D2AE8"/><text x="50" y="72" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="68" fill="#fff">C</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Canva Pro — 3 meses</div><div class="pt-sub">SOBRE PEDIDO</div></div>
+      <div class="pt-price"><small>$</small>10.000</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-icon bg-ca">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#7D2AE8"/><text x="50" y="72" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="68" fill="#fff">C</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Canva Pro — 6 meses</div><div class="pt-sub">SOBRE PEDIDO</div></div>
+      <div class="pt-price"><small>$</small>16.000</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-icon bg-ca">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#7D2AE8"/><text x="50" y="72" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="68" fill="#fff">C</text></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">Canva Pro — 1 año</div><div class="pt-sub">SOBRE PEDIDO</div></div>
+      <div class="pt-price"><small>$</small>25.000</div>
+    </div>
+
+    <!-- CAPCUT PRO -->
+    <div class="pt-row">
+      <div class="pt-icon" style="background:linear-gradient(135deg,#000,#1a1a1a);">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      </div>
+      <div class="pt-info"><div class="pt-name">CapCut Pro</div><div class="pt-sub">SOBRE PEDIDO · Edición de video premium</div></div>
+      <div class="pt-price"><small>$</small>18.000</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ LEYENDA ═══════ -->
+<section class="section" style="padding-bottom:60px;">
+  <div class="reveal" style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+      <div style="width:10px;height:10px;background:var(--green);border-radius:50%;"></div>
+      <span style="font-size:13px;color:var(--text);">Activación inmediata</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+      <div style="width:10px;height:10px;background:var(--gold);border-radius:50%;"></div>
+      <span style="font-size:13px;color:var(--text);">SOBRE PEDIDO (puede tardar un poco)</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ═══════ XORIVA REWARDS ═══════ -->
+<section class="referral-section" id="rewards">
+  <div class="referral-box reveal" id="referralBox">
+    <!-- Collapsed State (Visible by default) -->
+    <div class="referral-collapsed">
+      <span class="referral-icon">🎁</span>
+      <div class="referral-eyebrow">⭐ Programa Exclusivo</div>
+      <h2 class="referral-cta-title">Gana con <em>XORIVA</em></h2>
+      <p class="referral-cta-desc">Gana recompensas por invitar a tus amigos. Usa tu saldo como descuento en tu próxima compra.</p>
+
+      <div class="referral-cta-stats">
+        <div class="stat-item">
+          <div class="stat-value">$2.500</div>
+          <div class="stat-label">Por referido</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">$8.000</div>
+          <div class="stat-label">Bonus con 4</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Sin límites</div>
+        </div>
+      </div>
+
+      <button class="referral-expand-btn" onclick="expandReferral()">
+        Unirme al programa
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Expanded Content (Hidden by default) -->
+    <div class="referral-expanded">
+      <div class="referral-header">
+        <h2 class="referral-title">Programa de <em>Referidos</em> XORIVA</h2>
+        <p class="referral-subtitle">Gana recompensas por invitar a tus amigos. Genera tu código único y compártelo.</p>
+      </div>
+
+      <div class="referral-benefits">
+        <div class="benefit-card">
+          <div class="benefit-icon">💰</div>
+          <div class="benefit-value">Hasta $2.500</div>
+          <div class="benefit-label">Por cada amigo</div>
+          <div class="benefit-desc">Por cada amigo que compre, recibes hasta $2.500 en saldo para usar como descuento en tu próxima compra.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🎁</div>
+          <div class="benefit-value">$8.000 BONUS</div>
+          <div class="benefit-label">Con 4 referidos</div>
+          <div class="benefit-desc">Invita 4 amigos y recibe $8.000 en saldo adicional como bonificación especial.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">♾️</div>
+          <div class="benefit-value">Sin límites</div>
+          <div class="benefit-label">Gana siempre</div>
+          <div class="benefit-desc">No hay máximo de referidos. Mientras más invites, más ganas. El saldo se activa cuando el referido realiza su compra.</div>
+        </div>
+      </div>
+
+      <div class="referral-steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-text">Genera tu código</div>
+        </div>
+        <span class="step-arrow">→</span>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-text">Compártelo</div>
+        </div>
+        <span class="step-arrow">→</span>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-text">Gana recompensas</div>
+        </div>
+      </div>
+
+      <div class="referral-conditions">
+        <div class="conditions-title">⚠️ Importante</div>
+        <ul class="conditions-list">
+          <li><strong>El saldo se activa</strong> solo cuando tu referido realiza su compra.</li>
+          <li><strong>Usa tu saldo</strong> como descuento en tu próxima compra.</li>
+          <li><strong>Sin límite de referidos</strong> — mientras más invites, más ganas.</li>
+        </ul>
+      </div>
+
+      <div class="code-generator">
+        <div class="code-generator-title">Genera tu <span>código personalizado</span></div>
+        <div class="code-input-group">
+          <input type="text" id="referralName" placeholder="Tu nombre (ej: Juan)" maxlength="15" oninput="validateName(this)">
+          <button class="code-generate-btn" onclick="generateCode()">Generar código</button>
+        </div>
+        <div class="code-display-box" id="codeDisplay">
+          <div class="code-label">Tu código de referido</div>
+          <div class="code-value" id="generatedCode">XORIVA-TUNOMBRE</div>
+        </div>
+        <div class="code-actions" id="codeActions" style="display:none;">
+          <a href="#" id="whatsappReferral" target="_blank" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:8px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+            Compartir por WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div class="wa-referral-note">
+        <p><strong>¿Cómo funciona?</strong> Cuando tu amigo mencione tu código al hacer su compra por WhatsApp, nosotros registramos automáticamente quién lo refirió y acumulamos tus recompensas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CTA ═══════ -->
+<div class="cta-wrap">
+  <div class="cta-box reveal">
+    <div class="cta-eyebrow"><div class="cta-dot"></div>Disponible ahora mismo</div>
+    <h2 class="cta-title">¿Listo para<br><em>activar tu cuenta?</em></h2>
+    <p class="cta-sub">Escríbenos por WhatsApp y ten tu acceso listo en minutos. Atención real, entrega inmediata.</p>
+    <div class="cta-actions">
+      <a href="https://wa.me/573219060576?text=Hola!%20Me%20interesa%20un%20servicio%20XORIVA%20%F0%9F%94%A5" target="_blank" class="btn-wa">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+        Escribir al WhatsApp
+      </a>
+      <a href="#combos" class="btn-outline">Ver todos los planes</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Xoriva</div>
+  <p class="footer-copy">© 2025 XORIVA · Servicios de Streaming · WhatsApp: +57 321 906 0576</p>
+</footer>
+
+<!-- FLOATING WHATSAPP -->
+<a href="https://wa.me/573219060576?text=Hola!%20Quiero%20info%20sobre%20XORIVA%20%F0%9F%94%A5" target="_blank" class="wa-float" title="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+</a>
+
+<script>
+  // Scroll reveal animation
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('on'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if(t){ e.preventDefault(); t.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    });
+  });
+
+  // Mobile menu toggle
+  const navToggle = document.getElementById('navToggle');
+  const navMobile = document.getElementById('navMobile');
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navMobile.classList.toggle('active');
+    document.body.style.overflow = navMobile.classList.contains('active') ? 'hidden' : '';
+  });
+
+  // Close mobile menu on link click
+  navMobile.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('active');
+      navMobile.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ═══════ REFERRAL PROGRAM ═══════
+  function expandReferral() {
+    const box = document.getElementById('referralBox');
+    box.classList.add('expanded');
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function validateName(input) {
+    // Solo permitir letras y números
+    input.value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  }
+
+  function generateCode() {
+    const nameInput = document.getElementById('referralName');
+    const codeDisplay = document.getElementById('codeDisplay');
+    const codeActions = document.getElementById('codeActions');
+    const generatedCode = document.getElementById('generatedCode');
+    const whatsappBtn = document.getElementById('whatsappReferral');
+
+    let name = nameInput.value.trim().toUpperCase();
+
+    if (name.length < 2) {
+      nameInput.style.borderColor = '#ef4444';
+      nameInput.style.animation = 'shake 0.3s';
+      setTimeout(() => {
+        nameInput.style.borderColor = '';
+        nameInput.style.animation = '';
+      }, 300);
+      return;
+    }
+
+    // Generar código
+    const code = 'XORIVA-' + name.substring(0, 10) + Math.floor(Math.random() * 10);
+    generatedCode.textContent = code;
+
+    // Mostrar código y acciones
+    codeDisplay.classList.add('visible');
+    codeActions.style.display = 'flex';
+
+    // Crear enlace de WhatsApp con el código
+    const message = encodeURIComponent('¡Hola! Mi código de referido XORIVA es: ' + code + '\n\nQuiero registrarme en el programa de referidos para ganar recompensas. 🎁');
+    whatsappBtn.href = 'https://wa.me/573219060576?text=' + message;
+
+    // Guardar código en localStorage (temporal para la sesión)
+    localStorage.setItem('xoriva_referral_code', code);
+    localStorage.setItem('xoriva_referral_name', name);
+  }
+
+  // Limpiar datos guardados al cargar la página para generar código nuevo cada vez
+  document.addEventListener('DOMContentLoaded', () => {
+    localStorage.removeItem('xoriva_referral_code');
+    localStorage.removeItem('xoriva_referral_name');
+  });
+</script>
+</body>
+</html>
